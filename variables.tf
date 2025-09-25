@@ -30,6 +30,6 @@ variable "cidr_block" {
 }
 
 variable "api_id" {
-  type = string
+  type        = string
   description = "Api ID"
 }
