@@ -1,0 +1,7 @@
+project_id  = "g-clo-900"
+region      = "europe-west9"
+zone        = "europe-west9-a"
+vpc_name    = "g-clo-900-vpc-dev"
+subnet_name = "g-clo-900-subnet-dev"
+cidr_block  = "10.0.1.0/24"
+api_id      = "g-clo-api-dev"
