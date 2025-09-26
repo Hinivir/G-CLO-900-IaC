@@ -1,0 +1,90 @@
+name: Terraform CI/CD for Dev
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+    - 'iam/**'
+    - 'infra/**'
+  pull_request:
+    paths:
+    - 'iam/**'
+    - 'infra/**'
+
+jobs:
+  plan:
+    name: Terraform Plan (${{ matrix.dir }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        dir: [ "iam", "infra" ]
+
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.8.5
+
+    - name: Terraform Init
+      run: terraform init -backend-config=backends/dev.config
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Plan
+      run: terraform plan -out=tfplan -var-file=dev.tfvars
+
+    - name: Upload Plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan-${{ matrix.dir }}
+        path: ${{ matrix.dir }}/tfplan
+
+  apply:
+    name: Terraform Apply (${{ matrix.dir }})
+    runs-on: ubuntu-latest
+    needs: plan
+    environment: development
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    strategy:
+      matrix:
+        dir: [ "iam", "infra" ]
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.8.5
+
+    - name: Terraform Init
+      run: terraform init -backend-config=backends/dev.config
+
+    - name: Download Plan
+      uses: actions/download-artifact@v4
+      with:
+        name: tfplan-${{ matrix.dir }}
+        path: ${{ matrix.dir }}
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve tfplan
