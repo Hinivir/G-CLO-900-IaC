@@ -1,6 +1,6 @@
 resource "google_project_iam_custom_role" "gcp_iam_role" {
-  role_id = "terraformDev"
-  title   = "Terraform Dev"
+  role_id = variable.role_id
+  title   = variable.role_title
   permissions = ["vpcaccess.connectors.create",
     "vpcaccess.connectors.delete",
     "vpcaccess.connectors.get",

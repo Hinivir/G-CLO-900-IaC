@@ -33,3 +33,13 @@ variable "api_id" {
   type        = string
   description = "Api ID"
 }
+
+variable "role_id" {
+  type        = string
+  description = "Custom IAM Role ID"
+}
+
+variable "role_title" {
+  type        = string
+  description = "Custom IAM Role Title"
+}
