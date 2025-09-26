@@ -6,12 +6,15 @@ on:
     paths:
     - 'iam/**'
     - 'infra/**'
+    - '.github/workflows/**'
   pull_request:
     paths:
     - 'iam/**'
     - 'infra/**'
+    - '.github/workflows/**'
 
 jobs:
+
   plan:
     name: Terraform Plan (${{ matrix.dir }})
     runs-on: ubuntu-latest
@@ -40,6 +43,8 @@ jobs:
 
     - name: Terraform Init
       run: terraform init -backend-config=backends/dev.config
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY}}
 
     - name: Terraform Validate
       run: terraform validate
