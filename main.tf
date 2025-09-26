@@ -19,10 +19,3 @@ provider "google" {
 resource "google_compute_network" "main" {
   name = var.vpc_name
 }
-
-resource "google_compute_subnetwork" "main" {
-  name          = var.subnet_name
-  network       = google_compute_network.main
-  ip_cidr_range = var.cidr_block
-  region        = var.region
-}
