@@ -3,7 +3,6 @@ name: Terraform CI/CD for Dev
 on:
   push:
     branches:
-    - main
     paths:
     - 'infra/**'
     - '.github/workflows/**'
