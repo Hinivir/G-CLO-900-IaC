@@ -12,13 +12,15 @@ on:
     - '.github/workflows/**'
 
 jobs:
-  job_id:
+  auth:
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
       id-token: 'write'
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
     - id: 'auth'
       uses: 'google-github-actions/auth@v2'
       with:
@@ -28,6 +30,7 @@ jobs:
   plan:
     name: Terraform Plan
     runs-on: ubuntu-latest
+    needs: auth
 
     strategy:
       matrix:
