@@ -12,7 +12,7 @@ Le projet est réalisé en équipe de **4 personnes**.
 - Membre 2 : Viktor Bruggeman  
 - Membre 3 : Bastien Rodrigues
 - Membre 4 : Amaury Bariety
-
+- Member 5 : Stanislas Commenge
 ---
 
 ## 🛠️ Technologies & Outils
@@ -21,8 +21,8 @@ Le projet est réalisé en équipe de **4 personnes**.
   - Cloud Storage
   - IAM (gestion des droits)
 - **gcloud CLI**
-- **GitHub
-- **Terraform
+- **GitHub**
+- **Terraform**
 ---
 
 ## ⚙️ Prérequis
