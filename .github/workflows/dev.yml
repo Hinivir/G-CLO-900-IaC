@@ -2,7 +2,7 @@ name: Terraform CI/CD for Dev
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
     paths:
     - 'iam/**'
     - 'infra/**'
