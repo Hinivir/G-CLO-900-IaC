@@ -14,6 +14,7 @@ on:
 jobs:
 
   auth:
+    name: Google Auth
     runs-on: ubuntu-latest
 
     steps:
