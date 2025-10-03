@@ -1,9 +1,9 @@
-name: Terraform CI/CD for Dev
+name: Terraform CI/CD for Prod
 
 on:
   pull_request:
     branches:
-    - dev
+    - main
     paths:
     - 'infra/**'
     - '.github/workflows/**'
