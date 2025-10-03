@@ -12,25 +12,12 @@ on:
     - '.github/workflows/**'
 
 jobs:
-  auth:
+  plan:
+    name: Terraform Plan
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
       id-token: 'write'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v3'
-      with:
-        workload_identity_provider: 'projects/5062636305/locations/global/workloadIdentityPools/github/providers/my-repo'
-        service_account: 'github-terraform@g-clo-900.iam.gserviceaccount.com'
-
-  plan:
-    name: Terraform Plan
-    runs-on: ubuntu-latest
-    needs: auth
 
     strategy:
       matrix:
@@ -48,6 +35,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v3'
+      with:
+        workload_identity_provider: 'projects/5062636305/locations/global/workloadIdentityPools/github/providers/my-repo'
+        service_account: 'github-terraform@g-clo-900.iam.gserviceaccount.com'
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
@@ -75,6 +68,9 @@ jobs:
     needs: plan
     environment: development
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     strategy:
       matrix:
@@ -87,6 +83,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v3'
+      with:
+        workload_identity_provider: 'projects/5062636305/locations/global/workloadIdentityPools/github/providers/my-repo'
+        service_account: 'github-terraform@g-clo-900.iam.gserviceaccount.com'
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
