@@ -12,3 +12,8 @@ variable "zone" {
   type        = string
   description = "Zone for resources"
 }
+
+variable "billing_account_id" {
+  type        = string
+  description = "Billing account ID"
+}
