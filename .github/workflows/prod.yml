@@ -42,7 +42,7 @@ jobs:
           terraform_version: 1.8.5
 
       - name: Terraform Init
-        run: terraform init -backend-config=backends/dev.config
+        run: terraform init -backend-config=backends/prod.config
 
       - name: Terraform Validate
         run: terraform validate
