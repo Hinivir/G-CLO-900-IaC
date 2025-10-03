@@ -1,13 +1,135 @@
 openapi: 3.0.0
 info:
-  title: My Go API
+  title: Go Items API
   version: 1.0.0
+  description: |
+    Une petite API REST en Go permettant de créer, lire, mettre à jour et supprimer des items.
+    Routes exposées :
+    - `GET /items`
+    - `POST /items`
+    - `GET /items/{id}`
+    - `PUT /items/{id}`
+    - `DELETE /items/{id}`
+
+servers:
+  - url: #todo : "gcloud compute instances list"#
+
 paths:
   /items:
     get:
-      operationId: getItems
+      summary: Liste tous les items
+      operationId: listItems
       responses:
         '200':
           description: OK
-servers:
-  - url: http://<VM_EXTERNAL_IP>
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+    post:
+      summary: Crée un nouvel item
+      operationId: createItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemInput'
+      responses:
+        '201':
+          description: Item créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: JSON invalide
+
+  /items/{id}:
+    get:
+      summary: Récupère un item par ID
+      operationId: getItem
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '404':
+          description: Non trouvé
+
+    put:
+      summary: Met à jour un item
+      operationId: updateItem
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemInput'
+      responses:
+        '200':
+          description: Item mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '404':
+          description: Non trouvé
+
+    delete:
+      summary: Supprime un item
+      operationId: deleteItem
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Supprimé
+        '404':
+          description: Non trouvé
+
+components:
+  schemas:
+    Item:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Mon objet"
+        description:
+          type: string
+          example: "Une petite description"
+
+    ItemInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "Objet de test"
+        description:
+          type: string
+          example: "Description optionnelle"
