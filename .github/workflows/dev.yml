@@ -79,25 +79,10 @@ jobs:
         with:
           workload_identity_provider: "projects/5062636305/locations/global/workloadIdentityPools/github/providers/my-repo"
           service_account: "github-terraform@g-clo-900.iam.gserviceaccount.com"
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.8.5
-      - name: Terraform Init
-        run: terraform init -backend-config=backends/dev.config
       - name: Download Plan
         uses: actions/download-artifact@v4
         with:
           name: tfplan-${{ matrix.dir }}
           path: ${{ matrix.dir }}
-      - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
-
-      - name: Download Plan
-        uses: actions/download-artifact@v4
-        with:
-          name: tfplan-${{ matrix.dir }}
-          path: ${{ matrix.dir }}
-
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan

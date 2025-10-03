@@ -48,7 +48,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan -var-file=dev.tfvars
+        run: terraform plan -out=tfplan -var-file=prod.tfvars
 
       - name: Upload Plan
         uses: actions/upload-artifact@v4
