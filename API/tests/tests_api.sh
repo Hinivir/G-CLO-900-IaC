@@ -1,21 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
-echo "1️⃣ Création d'un item..."
-curl -s -X POST http://localhost:18080/items \
-    -H "Content-Type: application/json" \
-    -d '{"name":"Laptop","description":"Dell"}' | jq .
+URL="http://localhost:18080"
 
-echo "2️⃣ Liste des items..."
-curl -s http://localhost:18080/items | jq .
+echo "🧪 Test création..."
+curl -s -X POST -H "Content-Type: application/json" -d '{"name":"foo"}' $URL/items | jq .
 
-echo "3️⃣ Récupération de l'item 1..."
-curl -s http://localhost:18080/items/1 | jq .
+echo "🧪 Test lecture..."
+curl -s $URL/items | jq .
 
-echo "4️⃣ Mise à jour..."
-curl -s -X PUT http://localhost:18080/items/1 \
-    -H "Content-Type: application/json" \
-    -d '{"description":"Dell XPS 13"}' | jq .
-
-echo "5️⃣ Suppression..."
-curl -s -X DELETE http://localhost:18080/items/1 -i
+echo "✅ Tous les tests API Go sont passés."

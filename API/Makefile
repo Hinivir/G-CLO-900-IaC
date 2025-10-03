@@ -1,15 +1,15 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -O2 -pthread
-TARGET = rest-server
-SRC = src/main.cpp
+APP_NAME = api
+PORT = 18080
 
-all: $(TARGET)
+build:
+	go mod tidy
+	go build -o $(APP_NAME) main.go
 
-$(TARGET): $(SRC)
-	$(CXX) $(CXXFLAGS) -o build/$(TARGET) $(SRC)
+run: build
+	./$(APP_NAME)
 
-run: all
-	./build/$(TARGET) 18080
+docker-build:
+	docker build -t my-api .
 
-clean:
-	rm -f build/$(TARGET)
+docker-run:
+	docker run -p $(PORT):18080 my-api
