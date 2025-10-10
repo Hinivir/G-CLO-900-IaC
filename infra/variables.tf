@@ -28,8 +28,3 @@ variable "cidr_block" {
   type        = string
   description = "CIDR block for the VPC"
 }
-
-variable "api_id" {
-  type        = string
-  description = "Api ID"
-} 
