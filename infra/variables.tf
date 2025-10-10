@@ -28,8 +28,6 @@ variable "cidr_block" {
   type        = string
   description = "CIDR block for the VPC"
 }
-<<<<<<< HEAD
-=======
 
 variable "api_id" {
   type        = string
@@ -60,4 +58,3 @@ variable "machine_type" {
   type        = string
   description = "Machine type for the GKE nodes"
 }
->>>>>>> 0ea5506 (wip: start terraform of k8s cluster)
