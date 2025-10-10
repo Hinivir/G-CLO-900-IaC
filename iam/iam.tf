@@ -38,4 +38,8 @@ data "google_iam_policy" "billing_viewer" {
 resource "google_billing_account_iam_policy" "billing_viewer" {
   billing_account_id = var.billing_account_id
   policy_data        = data.google_iam_policy.billing_viewer.policy_data
+
+  lifecycle {
+    ignore_changes = [policy_data, billing_account_id]
+  }
 }
