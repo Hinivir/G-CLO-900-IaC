@@ -41,6 +41,11 @@ variable "cluster_name" {
   description = "Name of the GKE cluster"
 }
 
+variable "node_pool_name" {
+  type        = string
+  description = "Name of the GKE node pool"
+}
+
 variable "cluster_location" {
   type        = string
   description = "Location (region or zone) for the GKE cluster"
