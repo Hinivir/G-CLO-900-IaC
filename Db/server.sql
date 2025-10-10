@@ -1,21 +1,12 @@
-module "cloudsql" {
-  source               = "GoogleCloudPlatform/sql/google"
-  version              = "~> 15.0"
-  project_id           = "g-clo-900"
-  region               = "europe-west9"
-  zone                 = "europe-west9-a"
-  name                 = "to-do-list-db"
-  database_version     = "POSTGRES_15"
-  tier                 = "db-f1-micro" # À adapter selon la charge
-  availability_type    = "REGIONAL"    # Pour la haute disponibilité
-  disk_type            = "PD_SSD"
-  disk_size            = 20
-  deletion_protection  = true          # Empêche la suppression accidentelle
+CREATE TABLE IF NOT EXISTS datas (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    due_date TIMESTAMP NULL,
+    done BOOLEAN DEFAULT false
+);
 
-  # Réseau
-  ip_configuration = {
-    ipv4_enabled    = false            # Désactive l'IP publique
-    private_network = "projects/g-clo-900/global/networks/mon-vpc"
-    require_ssl     = true             # Force SSL pour les connexions
-  }
-}
+-- Exemple de données initiales (facultatif)
+INSERT INTO datas (title, content, due_date, done) VALUES
+('Première data', 'Contenu de data 1', NOW() + INTERVAL '7 days', false),
+('Deuxième data', 'Contenu de data 2', NOW() + INTERVAL '14 days', false);  

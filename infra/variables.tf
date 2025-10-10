@@ -32,4 +32,10 @@ variable "cidr_block" {
 variable "api_id" {
   type        = string
   description = "Api ID"
+}
+
+variable "db_password" {
+  type        = string
+  description = "Mot de passe PostgreSQL"
+  sensitive   = true
 } 
