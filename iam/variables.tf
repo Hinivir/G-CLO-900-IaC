@@ -17,3 +17,8 @@ variable "billing_account_id" {
   type        = string
   description = "Billing account ID"
 }
+
+variable "api_id" {
+  type        = string
+  description = "Api ID"
+}

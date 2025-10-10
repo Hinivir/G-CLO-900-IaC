@@ -24,15 +24,15 @@ resource "google_project_iam_member" "stanislas" {
 
 resource "google_project_iam_member" "jeremie" {
   project = var.project_id
-  role    = "roles/viewer" 
+  role    = "roles/viewer"
   member  = "user:jeremie@jjaouen.com"
 }
 
 data "google_iam_policy" "billing_viewer" {
   binding {
-      role    = "roles/billing.viewer"
-      members = ["user:jeremie@jjaouen.com"]
-    }
+    role    = "roles/billing.viewer"
+    members = ["user:jeremie@jjaouen.com"]
+  }
 }
 
 resource "google_billing_account_iam_policy" "billing_viewer" {

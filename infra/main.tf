@@ -24,5 +24,6 @@ provider "kubernetes" {
 }
 
 resource "google_compute_network" "main" {
-  name = var.vpc_name
+  name         = var.vpc_name
+  routing_mode = "REGIONAL"
 }
