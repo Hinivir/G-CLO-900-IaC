@@ -6,6 +6,7 @@ subnet_name      = "g-clo-900-subnet-dev"
 cidr_block       = "10.0.1.0/24"
 api_id           = "g-clo-api-dev"
 cluster_name     = "g-clo-900-cluster-dev"
+node_pool_name   = "g-clo-900-node-pool-dev"
 cluster_location = "europe-west9"
 machine_type     = "e2-medium"
 node_count       = 1

@@ -8,3 +8,8 @@ resource "google_project_service" "api_activate_k8s" {
   service = "container.googleapis.com"
   project = var.project_id
 }
+
+resource "google_project_service" "api_compute" {
+  project = var.project_id
+  service = "compute.googleapis.com"
+}
