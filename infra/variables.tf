@@ -29,11 +29,6 @@ variable "cidr_block" {
   description = "CIDR block for the VPC"
 }
 
-variable "api_id" {
-  type        = string
-  description = "Api ID"
-}
-
 variable "cluster_name" {
   type        = string
   description = "Name of the GKE cluster"
