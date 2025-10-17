@@ -12,7 +12,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// 🔹 Structure de données principale
 type Data struct {
 	ID      int    `json:"id"`
 	Title   string `json:"title"`
@@ -21,7 +20,6 @@ type Data struct {
 	Done    bool   `json:"done"`
 }
 
-// 🔹 GET /data → récupérer toutes les entrées
 func getDatas(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	rows, err := db.Query("SELECT id, title, content, due_date, done FROM datas ORDER BY id")
 	if err != nil {
@@ -44,7 +42,6 @@ func getDatas(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode(datas)
 }
 
-// 🔹 GET /data/{id} → récupérer une entrée spécifique
 func getData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	params := mux.Vars(r)
 	id := params["id"]
@@ -65,7 +62,6 @@ func getData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode(d)
 }
 
-// 🔹 POST /data → créer une nouvelle entrée
 func createData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var d Data
 	if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
@@ -86,7 +82,6 @@ func createData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode(d)
 }
 
-// 🔹 PUT /data/{id} → mettre à jour une entrée existante
 func updateData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	params := mux.Vars(r)
 	id := params["id"]
@@ -112,13 +107,11 @@ func updateData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	// On renvoie la donnée mise à jour
 	d.ID = atoiSafe(id)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(d)
 }
 
-// 🔹 DELETE /data/{id} → supprimer une entrée
 func deleteData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	params := mux.Vars(r)
 	id := params["id"]
@@ -139,7 +132,6 @@ func deleteData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Donnée supprimée"})
 }
 
-// 🔹 helper pour convertir string → int
 func atoiSafe(s string) int {
 	var i int
 	fmt.Sscanf(s, "%d", &i)
@@ -147,35 +139,31 @@ func atoiSafe(s string) int {
 }
 
 func main() {
-	// 🧩 Lecture des variables d’environnement (Docker Compose)
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
+    // read var
+    dbHost := os.Getenv("DB_HOST")
+    dbPort := os.Getenv("DB_PORT")
+    dbUser := os.Getenv("DB_USER")
+    dbPassword := os.Getenv("DB_PASSWORD")
+    dbName := os.Getenv("DB_NAME")
 
-	if dbHost == "" || dbUser == "" || dbPassword == "" || dbName == "" {
-		log.Fatal("❌ Variables d'environnement DB manquantes")
-	}
+    // postgres connection
+    connStr := fmt.Sprintf(
+        "host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+        dbHost, dbPort, dbUser, dbPassword, dbName,
+    )
 
-	connStr := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbName,
-	)
+    db, err := sql.Open("postgres", connStr)
+    if err != nil {
+        log.Fatal("Erreur de connexion à la base :", err)
+    }
+    defer db.Close()
 
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal("Erreur de connexion à la base :", err)
-	}
-	defer db.Close()
+    if err := db.Ping(); err != nil {
+        log.Fatal("Impossible de se connecter à la base :", err)
+    }
 
-	if err := db.Ping(); err != nil {
-		log.Fatal("Impossible de se connecter à la base :", err)
-	}
+    fmt.Println("Connexion PostgreSQL réussie")
 
-	fmt.Println("✅ Connexion PostgreSQL réussie")
-
-	// 🔧 Définition des routes
 	r := mux.NewRouter()
 	r.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) { getDatas(w, r, db) }).Methods("GET")
 	r.HandleFunc("/data/{id}", func(w http.ResponseWriter, r *http.Request) { getData(w, r, db) }).Methods("GET")
@@ -183,6 +171,6 @@ func main() {
 	r.HandleFunc("/data/{id}", func(w http.ResponseWriter, r *http.Request) { updateData(w, r, db) }).Methods("PUT")
 	r.HandleFunc("/data/{id}", func(w http.ResponseWriter, r *http.Request) { deleteData(w, r, db) }).Methods("DELETE")
 
-	fmt.Println("🚀 Serveur démarré sur le port 8000")
+	fmt.Println("Serveur démarré sur le port 8000")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
