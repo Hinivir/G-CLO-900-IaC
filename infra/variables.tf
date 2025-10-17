@@ -58,3 +58,8 @@ variable "machine_type" {
   type        = string
   description = "Machine type for the GKE nodes"
 }
+
+variable "github_token" {
+  type        = string
+  description = "GitHub token for authentication"
+}
