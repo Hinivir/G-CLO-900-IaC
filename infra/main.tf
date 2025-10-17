@@ -23,6 +23,14 @@ provider "kubernetes" {
   load_config_file       = false
 }
 
+provider "helm" {
+  kubernetes {
+    host                   = "https://${google_container_cluster.gke_cluster.endpoint}"
+    token                  = data.google_client_config.current.access_token
+    cluster_ca_certificate = base64decode(google_container_cluster.gke_cluster.master_auth.0.cluster_ca_certificate)
+  }
+}
+
 resource "google_compute_network" "main" {
   name         = var.vpc_name
   routing_mode = "REGIONAL"
