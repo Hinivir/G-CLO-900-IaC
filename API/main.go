@@ -16,10 +16,10 @@ import (
 
 type Data struct {
 	ID      string `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
-	DueDate string `json:"due_date"`
-	Done    bool   `json:"done"`
+	Title   string `js  n:"title"`
+	Content string `js  n:"content"`
+	DueDate string `js  n:"due_date"`
+	Done    bool   `js  n:"done"`
 }
 
 func getDatas(w http.ResponseWriter, r *http.Request, db *sql.DB) {
@@ -64,46 +64,48 @@ func getData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func createData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	var d Data
-	_ = json.NewDecoder(r.Body).Decode(&d)
-	d.ID = strconv.Itoa(rand.Intn(100000))
+    var d Data
+    _ = json.NewDecoder(r.Body).Decode(&d)
 
-	_, err := db.Exec(
-		"INSERT INTO datas (id, title, content, due_date, done) VALUES ($1, $2, $3, $4, $5)",
-		d.ID, d.Title, d.Content, d.DueDate, d.Done,
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+    err := db.QueryRow(
+        "INSERT INTO datas (title, content, due_date, done) VALUES ($1, $2, $3, $4) RETURNING id",
+        d.Title, d.Content, d.DueDate, d.Done,
+    ).Scan(&d.ID)
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(d)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(d)
 }
 
 func updateData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	params := mux.Vars(r)
-	var d Data
-	_ = json.NewDecoder(r.Body).Decode(&d)
-	d.ID = params["id"]
+    params := mux.Vars(r)
+    id := params["id"]
 
-	result, err := db.Exec(
-		"UPDATE datas SET title=$1, content=$2, due_date=$3, done=$4 WHERE id=$5",
-		d.Title, d.Content, d.DueDate, d.Done, d.ID,
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+    var d Data
+    _ = json.NewDecoder(r.Body).Decode(&d)
+    d.ID = id
 
-	rowsAffected, _ := result.RowsAffected()
-	if rowsAffected == 0 {
-		http.NotFound(w, r)
-		return
-	}
+    result, err := db.Exec(
+        "UPDATE datas SET title=$1, content=$2, due_date=$3, done=$4 WHERE id=$5",
+        d.Title, d.Content, d.DueDate, d.Done, d.ID,
+    )
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(d)
+    rowsAffected, _ := result.RowsAffected()
+    if rowsAffected == 0 {
+        http.NotFound(w, r)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(d)
 }
 
 func deleteData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
