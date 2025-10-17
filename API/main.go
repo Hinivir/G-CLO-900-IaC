@@ -44,6 +44,25 @@ func getDatas(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode(datas)
 }
 
+func getData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	params := mux.Vars(r)
+	var d Data
+
+	err := db.QueryRow("SELECT id, title, content, due_date, done FROM datas WHERE id=$1", params["id"]).Scan(
+		&d.ID, &d.Title, &d.Content, &d.DueDate, &d.Done,
+	)
+	if err == sql.ErrNoRows {
+		http.NotFound(w, r)
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(d)
+}
+
 func createData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var d Data
 	_ = json.NewDecoder(r.Body).Decode(&d)
@@ -60,6 +79,49 @@ func createData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(d)
+}
+
+func updateData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	params := mux.Vars(r)
+	var d Data
+	_ = json.NewDecoder(r.Body).Decode(&d)
+	d.ID = params["id"]
+
+	result, err := db.Exec(
+		"UPDATE datas SET title=$1, content=$2, due_date=$3, done=$4 WHERE id=$5",
+		d.Title, d.Content, d.DueDate, d.Done, d.ID,
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(d)
+}
+
+func deleteData(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	params := mux.Vars(r)
+	result, err := db.Exec("DELETE FROM datas WHERE id=$1", params["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "Donnée supprimée"})
 }
 
 func main() {
@@ -88,7 +150,10 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) { getDatas(w, r, db) }).Methods("GET")
+	r.HandleFunc("/data/{id}", func(w http.ResponseWriter, r *http.Request) { getData(w, r, db) }).Methods("GET")
 	r.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) { createData(w, r, db) }).Methods("POST")
+	r.HandleFunc("/data/{id}", func(w http.ResponseWriter, r *http.Request) { updateData(w, r, db) }).Methods("PUT")
+	r.HandleFunc("/data/{id}", func(w http.ResponseWriter, r *http.Request) { deleteData(w, r, db) }).Methods("DELETE")
 
 	fmt.Println("Serveur démarré sur le port 8000")
 	log.Fatal(http.ListenAndServe(":8000", r))
