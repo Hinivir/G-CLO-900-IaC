@@ -10,6 +10,8 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
 )
 
 type Data struct {
@@ -138,32 +140,84 @@ func atoiSafe(s string) int {
 	return i
 }
 
-//revert to previous push to test db working
+func ensureTableExists(db *sql.DB) error {
+    query := `
+    CREATE TABLE IF NOT EXISTS datas (
+        id SERIAL PRIMARY KEY,
+        title TEXT NOT NULL,
+        content TEXT,
+        due_date TEXT,
+        done BOOLEAN DEFAULT FALSE
+    );`
+    _, err := db.Exec(query)
+    return err
+}
+
+func getSecret(projectID, secretID, version string) (string, error) {
+	ctx := context.Background()
+	client, err := secretmanager.NewClient(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to create secretmanager client: %v", err)
+	}
+	defer client.Close()
+
+	name := fmt.Sprintf("projects/%s/secrets/%s/versions/%s", projectID, secretID, version)
+	req := &secretmanagerpb.AccessSecretVersionRequest{
+		Name: name,
+	}
+
+	result, err := client.AccessSecretVersion(ctx, req)
+	if err != nil {
+		return "", fmt.Errorf("failed to access secret version: %v", err)
+	}
+
+	return string(result.Payload.Data), nil
+}
+
 func main() {
-    // read var
-    dbHost := os.Getenv("DB_HOST")
-    dbPort := os.Getenv("DB_PORT")
-    dbUser := os.Getenv("DB_USER")
-    dbPassword := os.Getenv("DB_PASSWORD")
-    dbName := os.Getenv("DB_NAME")
+	projectID := "G-CLO-900-IaC"
 
-    // postgres connection
-    connStr := fmt.Sprintf(
-        "host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-        dbHost, dbPort, dbUser, dbPassword, dbName,
-    )
+	dbHost, err := getSecret(projectID, "DB_HOST", "latest")
+	if err != nil {
+		log.Fatalf("Erreur lors de la récupération de DB_HOST: %v", err)
+	}
+	dbPort, err := getSecret(projectID, "DB_PORT", "latest")
+	if err != nil {
+		log.Fatalf("Erreur lors de la récupération de DB_PORT: %v", err)
+	}
+	dbUser, err := getSecret(projectID, "DB_USER", "latest")
+	if err != nil {
+		log.Fatalf("Erreur lors de la récupération de DB_USER: %v", err)
+	}
+	dbPassword, err := getSecret(projectID, "DB_PASSWORD", "latest")
+	if err != nil {
+		log.Fatalf("Erreur lors de la récupération de DB_PASSWORD: %v", err)
+	}
+	dbName, err := getSecret(projectID, "DB_NAME", "latest")
+	if err != nil {
+		log.Fatalf("Erreur lors de la récupération de DB_NAME: %v", err)
+	}
 
-    db, err := sql.Open("postgres", connStr)
-    if err != nil {
-        log.Fatal("Erreur de connexion à la base :", err)
-    }
-    defer db.Close()
+	connStr := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPassword, dbName,
+	)
 
-    if err := db.Ping(); err != nil {
-        log.Fatal("Impossible de se connecter à la base :", err)
-    }
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal("Erreur de connexion à la base :", err)
+	}
+	defer db.Close()
 
-    fmt.Println("Connexion PostgreSQL réussie")
+	if err := db.Ping(); err != nil {
+		log.Fatal("Impossible de se connecter à la base :", err)
+	}
+
+	if err := ensureTableExists(db); err != nil {
+		log.Fatal("Impossible de créer la table :", err)
+	}
+
+	fmt.Println("Connexion PostgreSQL réussie et table vérifiée")
 
 	r := mux.NewRouter()
 	r.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) { getDatas(w, r, db) }).Methods("GET")
