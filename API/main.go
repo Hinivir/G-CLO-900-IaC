@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"log"
 	"net/http"
 	"os"
@@ -139,48 +138,22 @@ func atoiSafe(s string) int {
 	return i
 }
 
-func createTableIfNotExists(db *sql.DB) error {
-    query := `
-    CREATE TABLE IF NOT EXISTS datas (
-        id SERIAL PRIMARY KEY,
-        title TEXT NOT NULL,
-        content TEXT,
-        due_date TEXT,
-        done BOOLEAN DEFAULT FALSE
-    );`
-    _, err := db.Exec(query)
-    return err
-}
-
+//revert to previous push to test db working
 func main() {
+    // read var
     dbHost := os.Getenv("DB_HOST")
     dbPort := os.Getenv("DB_PORT")
     dbUser := os.Getenv("DB_USER")
     dbPassword := os.Getenv("DB_PASSWORD")
     dbName := os.Getenv("DB_NAME")
 
+    // postgres connection
     connStr := fmt.Sprintf(
-        "host=%s port=%s user=%s password=%s sslmode=disable",
-        dbHost, dbPort, dbUser, dbPassword,
-    )
-    db, err := sql.Open("postgres", connStr)
-    if err != nil {
-        log.Fatal("Erreur de connexion à PostgreSQL :", err)
-    }
-    defer db.Close()
-
-    if _, err := db.Exec(fmt.Sprintf("CREATE DATABASE %s", dbName)); err != nil {
-        if !strings.Contains(err.Error(), "already exists") {
-            log.Fatal("Impossible de créer la base de données :", err)
-        }
-    }
-    db.Close()
-
-    connStr = fmt.Sprintf(
         "host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
         dbHost, dbPort, dbUser, dbPassword, dbName,
     )
-    db, err = sql.Open("postgres", connStr)
+
+    db, err := sql.Open("postgres", connStr)
     if err != nil {
         log.Fatal("Erreur de connexion à la base :", err)
     }
@@ -190,11 +163,7 @@ func main() {
         log.Fatal("Impossible de se connecter à la base :", err)
     }
 
-    if err := createTableIfNotExists(db); err != nil {
-        log.Fatal("Impossible de créer la table :", err)
-    }
-
-    fmt.Println("Connexion PostgreSQL réussie et table vérifiée")
+    fmt.Println("Connexion PostgreSQL réussie")
 
 	r := mux.NewRouter()
 	r.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) { getDatas(w, r, db) }).Methods("GET")
