@@ -1,0 +1,3 @@
+authSecret.create: true
+
+authSecret.github_token: "${github_token}"

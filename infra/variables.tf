@@ -34,19 +34,9 @@ variable "cluster_name" {
   description = "Name of the GKE cluster"
 }
 
-variable "node_pool_name" {
-  type        = string
-  description = "Name of the GKE node pool"
-}
-
 variable "cluster_location" {
   type        = string
   description = "Location (region or zone) for the GKE cluster"
-}
-
-variable "node_count" {
-  type        = number
-  description = "Number of nodes in the GKE node pool"
 }
 
 variable "machine_type" {
@@ -57,4 +47,14 @@ variable "machine_type" {
 variable "github_token" {
   type        = string
   description = "GitHub token for authentication"
+}
+
+variable "static_ip_name" {
+  type        = string
+  description = "Name for the static IP address for GKE Ingress"
+}
+
+variable "grafana_admin" {
+  type        = string
+  description = "Admin username for Grafana"
 }
