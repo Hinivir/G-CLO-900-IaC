@@ -68,3 +68,23 @@ variable "db_name" {
   type        = string
   description = "Name of the Cloud SQL database instance"
 }
+
+variable "api_service_account_name" {
+  type        = string
+  description = "Kubernetes Service Account name for the API"
+}
+
+variable "api_gcp_service_account_id" {
+  type        = string
+  description = "GCP Service Account ID for the API"
+}
+
+variable "api_image_repository" {
+  type        = string
+  description = "Container image repository for the API"
+}
+
+variable "api_image_tag" {
+  type        = string
+  description = "Container image tag for the API"
+}
