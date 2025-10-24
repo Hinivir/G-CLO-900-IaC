@@ -11,6 +11,40 @@ env:
   TF_VAR_github_token: ${{ secrets.TF_VAR_GITHUB_TOKEN }}
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: "projects/5062636305/locations/global/workloadIdentityPools/github/providers/my-repo"
+          service_account: "github-terraform@g-clo-900.iam.gserviceaccount.com"
+
+      - name: build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./API
+          push: false
+          tags: api:dev
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker europe-west-9-docker.pkg.dev
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./API
+          push: true
+          tags: europe-west9-docker.pkg.dev/g-clo-900/docker-repo/api:dev
+
   plan:
     name: Terraform Plan
     runs-on: ubuntu-latest
