@@ -2,7 +2,7 @@
 resource "helm_release" "api" {
   name             = "api"
   repository       = ""
-  chart            = file("API/chart")
+  chart            = "${path.module}/API/chart"
   namespace        = kubernetes_namespace.api.metadata[0].name
   create_namespace = false
 
