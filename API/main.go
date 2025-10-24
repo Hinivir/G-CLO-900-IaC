@@ -1,12 +1,12 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -175,27 +175,24 @@ func getSecret(projectID, secretID, version string) (string, error) {
 }
 
 func main() {
-	projectID := "G-CLO-900-IaC"
+	projectID := "5062636305"
 
-	dbHost, err := getSecret(projectID, "DB_HOST", "latest")
+	dbHost, err := getSecret(projectID, "db-connection-name", "latest")
 	if err != nil {
-		log.Fatalf("Erreur lors de la récupération de DB_HOST: %v", err)
+		log.Fatalf("Erreur lors de la récupération de db-connection-name: %v", err)
 	}
-	dbPort, err := getSecret(projectID, "DB_PORT", "latest")
+	dbPort := "5432"
+	dbUser, err := getSecret(projectID, "db-user", "latest")
 	if err != nil {
-		log.Fatalf("Erreur lors de la récupération de DB_PORT: %v", err)
+		log.Fatalf("Erreur lors de la récupération de db-user: %v", err)
 	}
-	dbUser, err := getSecret(projectID, "DB_USER", "latest")
+	dbPassword, err := getSecret(projectID, "db-password", "latest")
 	if err != nil {
-		log.Fatalf("Erreur lors de la récupération de DB_USER: %v", err)
+		log.Fatalf("Erreur lors de la récupération de db-password: %v", err)
 	}
-	dbPassword, err := getSecret(projectID, "DB_PASSWORD", "latest")
+	dbName, err := getSecret(projectID, "db-name", "latest")
 	if err != nil {
-		log.Fatalf("Erreur lors de la récupération de DB_PASSWORD: %v", err)
-	}
-	dbName, err := getSecret(projectID, "DB_NAME", "latest")
-	if err != nil {
-		log.Fatalf("Erreur lors de la récupération de DB_NAME: %v", err)
+		log.Fatalf("Erreur lors de la récupération de db-name: %v", err)
 	}
 
 	connStr := fmt.Sprintf(

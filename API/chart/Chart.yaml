@@ -1,12 +1,15 @@
-
 apiVersion: v2
 name: api
-description: Helm chart for the API service
+description: Helm chart for the Go API service with PostgreSQL integration
 type: application
-version: 0.1.0
+version: 1.0.0
 appVersion: "1.0.0"
 maintainers:
   - name: Viktor
 keywords:
   - api
   - go
+  - postgresql
+home: https://github.com
+sources:
+  - https://github.com

@@ -58,3 +58,13 @@ variable "grafana_admin" {
   type        = string
   description = "Admin username for Grafana"
 }
+
+variable "db_username" {
+  type        = string
+  description = "Database username for Cloud SQL"
+}
+
+variable "db_name" {
+  type        = string
+  description = "Name of the Cloud SQL database instance"
+}
